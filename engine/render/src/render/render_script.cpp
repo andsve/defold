@@ -1346,6 +1346,47 @@ namespace dmRender
         }
     }
 
+    int RenderScript_ReadPixels(lua_State* L)
+    {
+        RenderScriptInstance* i = RenderScriptInstance_Check(L);
+        DM_LUA_STACK_CHECK(L, 0);
+
+        dmLogInfo("inserting read pixels!");
+
+        // dmBuffer::HBuffer hbuffer = dmScript::CheckBufferUnpack(L, 1);
+
+        dmhash_t buffer_id = dmScript::CheckHashOrString(L, 1);
+        dmhash_t stream_id = dmScript::CheckHashOrString(L, 2);
+        dmBuffer::HBuffer* hbufferptr = i->m_Buffers.Get(buffer_id);
+        if (hbufferptr == 0x0)
+        {
+            char str[128];
+            char buffer[256];
+            dmSnPrintf(buffer, sizeof(buffer), "Could not find buffer '%s' %llu", dmScript::GetStringFromHashOrString(L, 1, str, sizeof(str)), (unsigned long long)buffer_id); // since lua doesn't support proper format arguments
+            return luaL_error(L, "%s", buffer);
+        }
+
+        dmBuffer::HBuffer hbuffer = *hbufferptr;
+        if (InsertCommand(i, Command(COMMAND_TYPE_READ_PIXELS, (uint64_t)hbuffer, (uint64_t)stream_id)))
+        {
+            return 0;
+        }
+
+        return luaL_error(L, "Command buffer is full (%d).", i->m_CommandBuffer.Capacity());
+
+
+        // if (InsertCommand(i, Command(COMMAND_TYPE_READ_PIXELS, hbuffer, 0)))
+        // {
+        //     return 0;
+        // }
+        // else
+        // {
+        //     return luaL_error(L, "Command buffer is full (%d).", i->m_CommandBuffer.Capacity());
+        // }
+    }
+
+    // dmGraphics::ReadPixels(engine->m_GraphicsContext, record_data->m_Buffer, buffer_size);
+
     /* DEPRECATED. NO API DOC GENERATED.
      * disables a render target
      *
@@ -2909,6 +2950,7 @@ namespace dmRender
 
     static const luaL_reg Render_methods[] =
     {
+        {"read_pixels",                     RenderScript_ReadPixels},
         {"enable_state",                    RenderScript_EnableState},
         {"disable_state",                   RenderScript_DisableState},
         {"render_target",                   RenderScript_RenderTarget},
@@ -3272,6 +3314,7 @@ bail:
         i->m_RenderContext = render_context;
         i->m_CommandBuffer.SetCapacity(render_context->m_RenderScriptContext.m_CommandBufferSize);
         i->m_Materials.SetCapacity(16, 8);
+        i->m_Buffers.SetCapacity(4, 8);
 
         lua_pushvalue(L, -1);
         i->m_InstanceReference = dmScript::Ref( L, LUA_REGISTRYINDEX );
@@ -3339,6 +3382,21 @@ bail:
     void ClearRenderScriptInstanceMaterials(HRenderScriptInstance render_script_instance)
     {
         render_script_instance->m_Materials.Clear();
+    }
+
+    void AddRenderScriptInstanceBuffer(HRenderScriptInstance render_script_instance, const char* buffer_name, dmBuffer::HBuffer buffer)
+    {
+        if (render_script_instance->m_Buffers.Full())
+        {
+            uint32_t new_capacity = 2 * render_script_instance->m_Buffers.Capacity();
+            render_script_instance->m_Buffers.SetCapacity(2 * new_capacity, new_capacity);
+        }
+        render_script_instance->m_Buffers.Put(dmHashString64(buffer_name), buffer);
+    }
+
+    void ClearRenderScriptInstanceBuffers(HRenderScriptInstance render_script_instance)
+    {
+        render_script_instance->m_Buffers.Clear();
     }
 
     RenderScriptResult RunScript(HRenderScriptInstance script_instance, RenderScriptFunction script_function, void* args)

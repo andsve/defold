@@ -19,6 +19,7 @@
 #include "../gamesys.h"
 
 #include <dmsdk/gamesys/resources/res_material.h>
+#include <dmsdk/gamesys/resources/res_buffer.h>
 
 namespace dmGameSystem
 {
@@ -54,6 +55,7 @@ namespace dmGameSystem
             {
                 dmRender::SetRenderScriptInstanceRenderScript(prototype->m_Instance, prototype->m_Script);
                 dmRender::ClearRenderScriptInstanceMaterials(prototype->m_Instance);
+                dmRender::ClearRenderScriptInstanceBuffers(prototype->m_Instance);
             }
             prototype->m_Materials.SetCapacity(prototype_desc->m_Materials.m_Count);
             for (uint32_t i = 0; i < prototype_desc->m_Materials.m_Count; ++i)
@@ -75,6 +77,28 @@ namespace dmGameSystem
                     dmRender::AddRenderScriptInstanceMaterial(prototype->m_Instance, prototype_desc->m_Materials[i].m_Name, prototype->m_Materials[i]->m_Material);
                 }
             }
+
+
+            prototype->m_Buffers.SetCapacity(prototype_desc->m_Buffers.m_Count);
+            for (uint32_t i = 0; i < prototype_desc->m_Buffers.m_Count; ++i)
+            {
+                dmGameSystem::BufferResource* buffer_resource;
+                if (dmResource::RESULT_OK == dmResource::Get(factory, prototype_desc->m_Buffers[i].m_Buffer, (void**)&buffer_resource))
+                    prototype->m_Buffers.Push(buffer_resource);
+                else
+                    break;
+            }
+            if (!prototype->m_Buffers.Full())
+            {
+                result = dmResource::RESULT_OUT_OF_RESOURCES;
+            }
+            else
+            {
+                for (uint32_t i = 0; i < prototype->m_Buffers.Size(); ++i)
+                {
+                    dmRender::AddRenderScriptInstanceBuffer(prototype->m_Instance, prototype_desc->m_Buffers[i].m_Name, prototype->m_Buffers[i]->m_Buffer);
+                }
+            }
         }
         dmDDF::FreeMessage(prototype_desc);
         return result;
@@ -86,6 +110,8 @@ namespace dmGameSystem
             dmResource::Release(factory, prototype->m_Script);
         for (uint32_t i = 0; i < prototype->m_Materials.Size(); ++i)
             dmResource::Release(factory, prototype->m_Materials[i]);
+        for (uint32_t i = 0; i < prototype->m_Buffers.Size(); ++i)
+            dmResource::Release(factory, prototype->m_Buffers[i]);
     }
 
     dmResource::Result ResRenderPrototypeCreate(const dmResource::ResourceCreateParams& params)
@@ -133,6 +159,7 @@ namespace dmGameSystem
             ReleaseResources(params.m_Factory, prototype);
             prototype->m_Script = tmp_prototype.m_Script;
             prototype->m_Materials.Swap(tmp_prototype.m_Materials);
+            prototype->m_Buffers.Swap(tmp_prototype.m_Buffers);
         }
         else
         {

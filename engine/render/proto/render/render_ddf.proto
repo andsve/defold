@@ -15,8 +15,15 @@ message RenderPrototypeDesc
         required string material = 2 [(resource) = true];
     }
 
+    message BufferDesc
+    {
+        required string name = 1;
+        required string buffer = 2 [(resource) = true];
+    }
+
     required string script = 1 [(resource) = true];
     repeated MaterialDesc materials = 2;
+    repeated BufferDesc buffers = 3;
 }
 
 /*# Rendering API documentation

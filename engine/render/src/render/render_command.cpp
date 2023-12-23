@@ -14,6 +14,7 @@
 
 #include <stdio.h>
 #include <dlib/log.h>
+#include <dlib/buffer.h>
 #include <dmsdk/dlib/intersection.h>
 #include "render_command.h"
 #include "render_private.h"
@@ -77,6 +78,16 @@ namespace dmRender
                 case COMMAND_TYPE_SET_RENDER_TARGET:
                 {
                     dmGraphics::SetRenderTarget(context, c->m_Operands[0], c->m_Operands[1]);
+                    break;
+                }
+                case COMMAND_TYPE_READ_PIXELS:
+                {
+                    // dmGraphics::SetRenderTarget(context, c->m_Operands[0], c->m_Operands[1]);
+                    // dmGraphics::ReadPixels(engine->m_GraphicsContext, record_data->m_Buffer, buffer_size);
+                    dmBuffer::HBuffer hbuffer = c->m_Operands[0];
+                    dmhash_t stream_id = c->m_Operands[1];
+                    dmLogInfo("hbuffer: %u %llu", hbuffer, stream_id);
+                    // dmGraphics::ReadPixels(context, record_data->m_Buffer, buffer_size);
                     break;
                 }
                 case COMMAND_TYPE_ENABLE_TEXTURE:

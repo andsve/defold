@@ -18,6 +18,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <dmsdk/dlib/vmath.h>
+#include <dmsdk/dlib/buffer.h>
 #include <dmsdk/render/render.h>
 
 #include <dlib/hash.h>
@@ -201,6 +202,8 @@ namespace dmRender
     void                    SetRenderScriptInstanceRenderScript(HRenderScriptInstance render_script_instance, HRenderScript render_script);
     void                    AddRenderScriptInstanceMaterial(HRenderScriptInstance render_script_instance, const char* material_name, dmRender::HMaterial material);
     void                    ClearRenderScriptInstanceMaterials(HRenderScriptInstance render_script_instance);
+    void                    AddRenderScriptInstanceBuffer(HRenderScriptInstance render_script_instance, const char* buffer_name, dmBuffer::HBuffer buffer);
+    void                    ClearRenderScriptInstanceBuffers(HRenderScriptInstance render_script_instance);
     RenderScriptResult      InitRenderScriptInstance(HRenderScriptInstance render_script_instance);
     RenderScriptResult      DispatchRenderScriptInstance(HRenderScriptInstance render_script_instance);
     RenderScriptResult      UpdateRenderScriptInstance(HRenderScriptInstance render_script_instance, float dt);
