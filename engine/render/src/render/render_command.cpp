@@ -86,7 +86,48 @@ namespace dmRender
                     // dmGraphics::ReadPixels(engine->m_GraphicsContext, record_data->m_Buffer, buffer_size);
                     dmBuffer::HBuffer hbuffer = c->m_Operands[0];
                     dmhash_t stream_id = c->m_Operands[1];
-                    dmLogInfo("hbuffer: %u %llu", hbuffer, stream_id);
+                    // dmLogInfo("hbuffer: %u %llu", hbuffer, stream_id);
+
+                    void* data = 0x0;
+                    uint32_t count = 0;
+                    uint32_t components = 0;
+                    uint32_t stride = 0;
+                    dmBuffer::Result r = dmBuffer::GetStream(hbuffer, stream_id, &data, &count, &components, &stride);
+
+                    // dmLogInfo("count: %d", count);
+                    // dmLogInfo("components: %d", components);
+
+                    if (r == dmBuffer::RESULT_OK) {
+                        dmGraphics::ReadPixels(context, data, count);
+
+                        // uint8_t* test_colors = (uint8_t*)data;
+                        // dmLogInfo("%d %d %d %d", test_colors[0], test_colors[1], test_colors[2], test_colors[3]);
+
+                        // for (int i = 0; i < count; ++i)
+                        // {
+                        //     for (int c = 0; c < components; ++c)
+                        //     {
+                        //          dmLogInfo("%d", ((uint8_t*)data)[c]);
+                        //     }
+                        //     data = ((uint8_t*)data) + stride;
+                        // }
+
+                        // for (int i = 0; i < count; ++i)
+                        // {
+                        //     for (int c = 0; c < components; ++c)
+                        //     {
+                        //          positions[c] *= 1.1f;
+                        //     }
+                        //     positions += stride;
+                        // }
+                    } else {
+                        // handle error
+                        dmLogError("DING DONG ERROR!");
+                    }
+
+
+
+                    // dmLogInfo("hbuffer: %u %llu", hbuffer, stream_id);
                     // dmGraphics::ReadPixels(context, record_data->m_Buffer, buffer_size);
                     break;
                 }

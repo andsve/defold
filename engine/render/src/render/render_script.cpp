@@ -1351,7 +1351,7 @@ namespace dmRender
         RenderScriptInstance* i = RenderScriptInstance_Check(L);
         DM_LUA_STACK_CHECK(L, 0);
 
-        dmLogInfo("inserting read pixels!");
+        // dmLogInfo("inserting read pixels!");
 
         // dmBuffer::HBuffer hbuffer = dmScript::CheckBufferUnpack(L, 1);
 
